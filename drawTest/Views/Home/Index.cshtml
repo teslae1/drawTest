@@ -1,0 +1,234 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@*//add input type color in html for color selector*@
+
+<head>
+
+    <script src="~/js/canvas.js"></script>
+</head>
+
+@*<div class="sidenavl">
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#clients">Clients</a>
+    <a href="#contact">Contact</a>
+</div>*@
+
+<div class="navbar-left">
+</div>
+
+<div class="navbar-right">
+    <div class="text-center" style="font-size:large;">
+        <br />
+        <br />
+        <br />
+        <br />
+        <i class="fas fa-stopwatch fa-4x" style="color:white;"></i>
+
+        <br />
+        <br />
+        <h5 style="color:white;">
+
+            Timer &ensp; &ensp;Minutter &ensp;&ensp; Sekunder
+        </h5>
+
+
+
+        <input type="text" class="rounded" maxlength="2" style="width:60px; font-size:50px; color:white; background-color:dodgerblue;" value="00" id="hours" />
+        &ensp;
+        <a style="color:white;">:</a>
+        &ensp;
+        <input type="text" class="rounded" maxlength="2" style="width:60px; font-size:50px; color:white; background-color:dodgerblue;" value="00" id="minutes" />
+        &ensp;
+        <a style="color:white;">:</a>
+        &ensp;
+        <input type="text" class="rounded" maxlength="2" style="width:60px; font-size:50px; color:white; background-color:dodgerblue;" value="00" id="seconds" />
+
+
+        <br />
+        <br />
+        <br />
+
+        <i class="fa fa-play fa-2x" style="color:white" onclick="startTimer()" id="btnPlay"></i>&emsp;
+        <i class="fa fa-pause fa-2x" style="color:white;" onclick="pauseTimer()" id="btnPause"></i>&emsp;
+        <i class="fa fa-stop fa-2x" style="color:white;" onclick="resetTimer()" id="btnStop"></i>&emsp;
+    </div>
+        
+    </div>
+</div>
+
+<div class="main text-center">
+    <i class="fa fa-1x fa-paint-brush" style="color: gray; padding-bottom: 2px;" onclick="setPaintWidth(5)" id="5"></i>
+    &ensp;
+
+    <i class="fa fa-2x fa-paint-brush" style="        color: black;
+        padding-bottom: 2px;" onclick="setPaintWidth(10)" id="10"></i>
+    &ensp;
+
+    <i class="fa fa-3x fa-paint-brush" style=" color: gray; padding-bottom: 2px; " onclick="setPaintWidth(15)" id="15"></i>
+
+    &emsp;
+    &emsp;
+    &emsp;
+    &emsp;
+
+    <i class="fa fa-3x fa-square" style="color:black;" onclick="changeColor('black')"></i>
+    <i class="fa fa-3x fa-square" style="color:blue;" onclick="changeColor('blue')"></i>
+    <i class="fa fa-3x fa-square" style="color:red;" onclick="changeColor('red')"></i>
+    &emsp;
+    &emsp;
+    &emsp;
+    &emsp;
+    <i class="fa fa-3x fa-eraser" onclick="changeColor('white')"></i>
+
+
+    &emsp;
+    &emsp;
+    &emsp;
+    &emsp;
+
+    <i class="fa  fa-3x fa-trash" style="padding-bottom:3px; right:300px; position:absolute;" onclick="clearCanvas()"></i>
+
+    <canvas id="canvas" ></canvas>
+
+
+</div>
+
+
+
+<script>
+
+    function startTimer(command) {
+        if (!inputIsZero()) {
+
+            shouldReset = false;
+            shouldPause = false;
+
+            updateButtonSelected("btnPlay");
+
+            //retrieve hours, minutes
+            var hours = Number(getValue("hours"));
+            var minutes = Number(getValue("minutes"));
+            var seconds = Number(getValue("seconds"));
+
+
+            allowUserInputTimer(false);
+
+
+            //start count down
+            var myFunc = setInterval(function () {
+
+                if (shouldReset) {
+                    clearInterval(myFunc);
+                }
+                else if (!shouldPause) {
+                    seconds--;
+                    if (seconds < 0 && minutes >= 0) {
+                        //start nyt minut
+                        minutes--;
+                        seconds = 59;
+                    }
+                    if (minutes < 0 && hours > 0) {
+                        //start ny time
+                        hours--;
+                        minutes = 59;
+                    }
+
+                    //update view
+                    if (seconds / 10 < 1)
+                        updateValue("seconds", "0" + seconds);
+                    else
+                        updateValue("seconds", seconds);
+
+                    if (minutes / 10 < 1)
+                        updateValue("minutes", "0" + minutes);
+                    else
+                        updateValue("minutes", minutes);
+
+                    if (hours / 10 < 1)
+                        updateValue("hours", "0" + hours);
+                    else
+                        updateVaule("hours", hours);
+
+
+
+                    if (inputIsZero()) {
+                        alert("Times up");
+                        clearInterval(myFunc);
+
+                        allowUserInputTimer(true);
+
+                        updateButtonSelected("none");
+                    }
+                }
+            }, 1000)
+        }
+        
+    }
+
+    var shouldPause = false;
+    function pauseTimer() {
+        shouldPause = true;
+        updateButtonSelected("btnPause");
+    }
+
+    var shouldReset = false;
+    function resetTimer() {
+
+        shouldReset = true;
+
+        updateValue("hours", "00");
+        updateValue("minutes", "00");
+        updateValue("seconds", "00");
+
+        allowUserInputTimer(true);
+
+        updateButtonSelected("none");
+    }
+
+
+
+
+    const btnIds = ["btnPlay", "btnPause", "btnStop"];
+
+    function updateButtonSelected(buttonId) {
+        if (buttonId != "none") 
+            document.getElementById(buttonId).style.color = "gray";
+
+        btnIds.forEach(item => {
+            if (item != buttonId)
+                document.getElementById(item).style.color = "white";
+        });
+    }
+
+    function allowUserInputTimer(enable) {
+        if (enable) {
+            document.getElementById("hours").disabled = false;
+            document.getElementById("minutes").disabled = false;
+            document.getElementById("seconds").disabled = false;
+        }
+        else {
+            document.getElementById("hours").disabled = true;
+            document.getElementById("minutes").disabled = true;
+            document.getElementById("seconds").disabled = true;
+        }
+    }
+
+    function updateValue(id, newValue) {
+        document.getElementById(id).value = newValue;
+    }
+    function getValue(id) {
+        return document.getElementById(id).value;
+    }
+
+    function inputIsZero() {
+        return (getValue("hours") == "00" && getValue("minutes") == "00" && getValue("seconds") == "00")
+    }
+</script>
+
+
+
+
+
